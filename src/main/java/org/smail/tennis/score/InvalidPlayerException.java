@@ -10,6 +10,11 @@ public class InvalidPlayerException extends RuntimeException {
 		super("invalid player name "+ player +", should be A or B");
 		
 	}
+	
+	public  InvalidPlayerException(String seq) {
+		super("invalid play sequence "+ seq +", should contain only As and Bs");
+		
+	}
 
 
 

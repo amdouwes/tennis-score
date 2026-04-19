@@ -1,104 +1,80 @@
 package org.smail.tennis.score;
 
+import java.util.ArrayList;
+import java.util.List;
+
+
+/**
+ * execute un jeu contenant une suite de caracères A ou B, indiquant le gagnant de chaque belle
+ * utilise la classe TennisGame qui contient la logique métier pour chaque balle
+ */
 public class TennisScoring {
 
-	enum GameState {
-		NORMAL, DEUCE, ADVANTAGE
+	private static final int[] POINTS = { 0, 15, 30, 40 };
+
+	GameResult computeScore(String game) {
+		if (game == null || game.length() == 0)
+			throw new IllegalArgumentException(game);
+		if (!game.matches("[AB]+"))
+			throw new InvalidPlayerException(game);
+
+		List<String> sequence = new ArrayList<String>();
+		TennisGame tennisGame = new TennisGame();
+
+		for (char player : game.toCharArray()) {
+			tennisGame.play(player);
+			sequence.add(formatScore(tennisGame.getScore()));
+
+			if (tennisGame.isFinished()) {
+				sequence.add("Player " + tennisGame.getWinner() + " wins the game");
+				return new GameResult(sequence, tennisGame.getWinner());
+			}
+		}
+
+		sequence.add("Game not finished");
+		return new GameResult(sequence, tennisGame.getWinner());
 	}
 
-	
-	
-	private static final int[] POINTS = { 0, 15, 30, 40 };
-	
+	private String formatScore(int[] score) {
+		return "Player A : " + POINTS[score[0]] + " / Player B : " + POINTS[score[1]];
+	}
 
 	/*
-	 * game : a suite of characters like ABABAA describing scoring sequence, where A
-	 * and B are players print who won the game and it's sequence print the score
-	 * after each won ball (for example : “Player A : 15 / Player B : 30”) and print
+	 * game : a suite of chars like ABABAA describing scoring sequence, where A
+	 * and B are players. print who won the game and it's sequence print the score
+	 * after each won ball (for example : "Player A : 15 / Player B : 30") and print
 	 * the winner of the game
 	 */
 	public void printScore(String game) {
-
-		if (game==null || game.length()==0)
-			throw new IllegalArgumentException(game);
-		int scoreAIndex = 0;
-		int scoreBIndex = 0;
-		GameState state = GameState.NORMAL;
-		char winner = 'X';
-		for (int i = 0; i < game.length(); i++) {
-			char player = game.charAt(i);
-			if (player != 'A' && player != 'B')
-				throw new InvalidPlayerException(player);
-
-			switch (state) {
-			case NORMAL -> {
-
-				if (player == 'A') {
-					if (scoreAIndex == 3 && scoreBIndex == 3) {
-						state = GameState.DEUCE;
-					} else if (scoreAIndex == 3) {
-						winner = 'A';
-						System.out.println("Player " + winner + " :  Wins the game");
-						return;
-					} else {
-						scoreAIndex++;
-					}
-				}
-				if (player == 'B') {
-					if (scoreBIndex == 3 && scoreAIndex == 3) {
-						state = GameState.DEUCE;
-					} else if (scoreBIndex == 3) {
-						winner = 'B';
-						System.out.println("Player " + winner + " :  Wins the game");
-						return;
-					} else {
-						scoreBIndex++;
-					}
-				}
-			}
-
-			case DEUCE -> {
-				if (player == 'A') {
-					state = GameState.ADVANTAGE;
-					winner = 'A';
-				} else if (player == 'B') {
-					state = GameState.ADVANTAGE;
-					winner = 'B';
-				}
-			}
-
-			case ADVANTAGE -> {
-				if (player == 'A') {
-					winner = 'A';
-					return;
-				} else if (player == 'B') {
-					winner = 'B';
-					return;
-				}
-			}
-
-			}
-			System.out.println("Player A : " + POINTS[scoreAIndex] + "/ Player B : " + POINTS[scoreBIndex]);
-
+		GameResult res = this.computeScore(game);
+		for (String line : res.getSequence()) {
+			System.out.println(line);
 		}
-		System.out.println("Player " + winner + " :  Wins the game \n\n");
-
 	}
 
+	// point d'entrée pour démonstration, les TU couvrent la logique
 	public static void main(String[] args) {
 		TennisScoring scoring = new TennisScoring();
-		scoring.printScore("AAAA"); // A gagne sans que B marque un point
-		scoring.printScore("BBBB"); // B gagne sans que A marque un poin
-		scoring.printScore("ABABAA"); // A Gagne
-		scoring.printScore("BABABB"); // A Gagne
-		scoring.printScore("AAABBBAA");    // deuce, A prend l'avantage et gagne
-		scoring.printScore("AAABBBBA");    // deuce, B prend l'avantage et gagne
-		scoring.printScore("AAABBBABBA");  // deuce, A avantage, retour deuce, B avantage, B gagne
-		scoring.printScore("AAABBBABABAA");// plusieurs allers-retours deuce/avantage
-		scoring.printScore("AABABC");      // caractère invalide, doit lever InvalidPlayerException
-		scoring.printScore("");            // chaîne vide
-		scoring.printScore(null);          // null, que se passe-t-il ?
-		
 
+		scoring.printScore("AAB");          // partie non terminée
+		scoring.printScore("ABBA");         // partie en cours
+		scoring.printScore("AAAA");         // A gagne sans que B marque
+		scoring.printScore("BBBB");         // B gagne sans que A marque
+		scoring.printScore("ABABAA");       // exemple de l'énoncé, A gagne
+		scoring.printScore("BABABB");       // B gagne
+		scoring.printScore("AAABBB");       // deuce
+		scoring.printScore("AAABBBAA");     // deuce, A avantage et gagne
+		scoring.printScore("AAABBBBA");     // deuce, B avantage puis retour deuce
+		scoring.printScore("AAABBBABBA");   // plusieurs deuces, partie non terminée
+		scoring.printScore("AAABBBAABBBB"); // A gagne au 8ème point, balles suivantes ignorées
+
+		try { scoring.printScore("AABABC"); } // caractère invalide
+		catch (InvalidPlayerException e) { System.out.println(e.getMessage()); }
+
+		try { scoring.printScore(""); }      // chaîne vide
+		catch (IllegalArgumentException e) { System.out.println("empty game"); }
+
+		try { scoring.printScore(null); }    // null
+		catch (IllegalArgumentException e) { System.out.println("null game"); }
 	}
 }

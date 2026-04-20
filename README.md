@@ -14,6 +14,22 @@ and prints the score after each ball and the winner of the game.
 - If the player with Advantage wins : he wins the game
 - If the player without Advantage wins : back to Deuce
 
+## Game states — example sequence (AAABBBBABAAA)
+
+```
+Ball  1  A  →  15 / 0    NORMAL
+Ball  2  A  →  30 / 0    NORMAL
+Ball  3  A  →  40 / 0    NORMAL
+Ball  4  B  →  40 / 15   NORMAL
+Ball  5  B  →  40 / 30   NORMAL
+Ball  6  B  →  40 / 40   DEUCE
+Ball  7  A  →  40 / 40   ADVANTAGE A
+Ball  8  B  →  40 / 40   DEUCE
+Ball  9  B  →  40 / 40   ADVANTAGE B
+Ball 10  A  →  40 / 40   DEUCE
+Ball 11  A  →  40 / 40   ADVANTAGE A
+Ball 12  A  →  40 / 40   END — A wins
+
 ## Technical choices
 - `int[]  POINTS = {0, 15, 30, 40}` : score represented as an index to avoid arithmetic issues
 - `enum GameState` : tracks the state of the game (NORMAL, DEUCE, ADVANTAGE)
@@ -39,6 +55,9 @@ Player A : 30 / Player B : 30
 Player A : 40 / Player B : 30
 Player A : 40 / Player B : 40
 Player A wins the game
+```
+
+
 ```
 
 ## Stack

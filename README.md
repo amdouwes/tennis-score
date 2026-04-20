@@ -29,6 +29,9 @@ Ball  9  B  →  40 / 40   ADVANTAGE B
 Ball 10  A  →  40 / 40   DEUCE
 Ball 11  A  →  40 / 40   ADVANTAGE A
 Ball 12  A  →  40 / 40   END — A wins
+```
+
+
 
 ## Technical choices
 - `int[]  POINTS = {0, 15, 30, 40}` : score represented as an index to avoid arithmetic issues

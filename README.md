@@ -1,4 +1,4 @@
-# Tennis Score Kata
+# Simple Tennis Score 
 
 ## Description
 Implementation of a simple tennis score computer in Java.
